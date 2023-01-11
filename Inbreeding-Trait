@@ -33,17 +33,25 @@ SpcChr$Ibd_coefficient2<-SpcChr$Ibd_coefficient-0.5
 ## Therefore, the magnitude of inbreeding depression will positively scale with inbreeding effect sizes
 SpcChr$Effect.sizes<-SpcChr$Effect.sizes*-1
 
+##########################################################################################################################################################
+##########################################################################################################################################################
+
 ## Analyisi 1: Global meta-analysis
 
 m1<-MCMCglmm(Effect.sizes~1,mev = SpcChr$Var,data=SpcChr,verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
 summary(m1)
 
+###########################################################################################################################################################
+
+## Analysis 2: Meta-analysis of inbreeding coefficient and inbreeding effect siezes
+
 m2<-MCMCglmm(Effect.sizes~Ibd_coefficient2,mev = SpcChr$Var,data=SpcChr, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
 summary(m2)
 
 
-
-######################################## Model 1: trait tpyes and inbreeding effect sizes#####################################################################################################
+########################################################################################################################################################################
+######################################## Analysis 3: Meta-analysis of phenotypic traits and inbreeding effect siezes ###################################################
+########################################################################################################################################################################
 
 m3.1<-MCMCglmm(Effect.sizes~Trait_type*Ibd_coefficient2,mev = SpcChr$Var,data=SpcChr, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
 summary(m3.1)
