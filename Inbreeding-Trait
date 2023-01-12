@@ -322,8 +322,8 @@ table(Plantstage$Life.stage:Plantstage$Mating.system2)
 table(Animalstage$Life.stage)
 
 
-##### Analysis the relationship between life history stage and inbreeding effect sizes #####
-##### Analysis the interaction term : life history stage * mating system ######
+##### Analysis the relationship between life history stage and inbreeding effect sizes in plants #####
+##### Analysis the interaction term : life history stage * mating system in plants ######
 
 m6a<-MCMCglmm(Effect.sizes~Ibd_coefficient2,mev = Plantstage$Var,data=Plantstage, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
 summary(m6a)
@@ -341,44 +341,97 @@ m6e<-MCMCglmm(Effect.sizes~Ibd_coefficient2+Mating.system2,mev = Plantstage$Var,
 summary(m6e)
 
 
+##### Plotting the relationship between inbreeding effect sizes and the life history stage in plants ##############################
+##### The model with the lowerest DIC is m6b (the best fit model) #################################################################
 
-res6 <- cbind(m6.4$Sol[, "(Intercept)"],
-              m6.4$Sol[, "(Intercept)"] + m6.4$Sol[, "Life.stageMiddle"],
-              m6.4$Sol[, "(Intercept)"] + m6.4$Sol[, "Life.stageLate"],
-              m6.4$Sol[, "(Intercept)"] + m6.4$Sol[, "Mating.system2Outcrossing"],
-              m6.4$Sol[, "(Intercept)"] + m6.4$Sol[, "Life.stageMiddle:Mating.system2Outcrossing"],
-              m6.4$Sol[, "(Intercept)"] + m6.4$Sol[, "Life.stageLate:Mating.system2Outcrossing"])
+table(stage$Life.stage)
+
+res6b <- cbind(m6b$Sol[, "(Intercept)"],
+               m6b$Sol[, "(Intercept)"] + m6b$Sol[, "Life.stageMiddle"],
+               m6b$Sol[, "(Intercept)"] + m6b$Sol[, "Life.stageLate"])
 
 
-res6.tmp <- HPDinterval(mcmc(res6))
+res6b.tmp <- HPDinterval(mcmc(res6b))
 
-hpm <- c(mean(mcmc(res6)[,1]),
-         mean(mcmc(res6)[,2]),
-         mean(mcmc(res6)[,3]),
-         mean(mcmc(res6)[,4]),
-         mean(mcmc(res6)[,5]),
-         mean(mcmc(res6)[,6]))
+hpm <- c(mean(mcmc(res6b)[,1]),
+         mean(mcmc(res6b)[,2]),
+         mean(mcmc(res6b)[,3]))
 
-p.val <- c(pMCMC(mcmc(res6)[,1]),
-           pMCMC(mcmc(res6)[,2]),
-           pMCMC(mcmc(res6)[,3]),
-           pMCMC(mcmc(res6)[,4]),
-           pMCMC(mcmc(res6)[,5]),
-           pMCMC(mcmc(res6)[,6]))
+p.val <- c(pMCMC(mcmc(res6b)[,1]),
+           pMCMC(mcmc(res6b)[,2]),
+           pMCMC(mcmc(res6b)[,3]))
 
-res6 <- data.frame(hpm,res6.tmp, p.val)
-colnames(res6) <- c("post.mean", "l-95% CI", "u-95% CI", "pMCMC")
-rownames(res6) <- c("Early (mix-mating)","Middle (mix-mating)","Late (mix-mating)","Early (outcrossing)","Middle (outcrossing)","Late (outcrossing)")
-res6
+res6b <- data.frame(hpm,res6b.tmp, p.val)
+colnames(res6b) <- c("post.mean", "l-95% CI", "u-95% CI", "pMCMC")
+rownames(res6b) <- c("Early","Middle","Late")
+res6b
 
+
+ng <- 3
+par(mfrow = c(1,1))
+par(mar=c(5,4,2,2))
+
+plot(res6b[,1],c(ng:1),xlab="Inbreeding effect size", ylab="", bg=c(rep("black",ng)), pch=22,
+     cex=2, xlim=c(-0.1,1.2),ylim=c(0,ng+1),yaxt="n") 
+e.bars.points2(res6b[,1], z1 = res6b[,3], z2 = res6b[,2], x = c(ng:1),cap=0.1,clr=c(rep("black",ng)), lwd=1.5)
+abline(v=0,lty=5,col="gray50", lwd=1.5)
+
+# add some labels to the plot, take care to get the correct order
+#adjust x as needed
+
+
+text(x = 0.5, y = 3,labels="Early", pos=4,cex=1.5)
+text(x = 0.5, y = 2,labels="Middle", pos=4,cex=1.5)
+text(x = 0.5, y = 1,labels="Late", pos=4,cex=1.5)
+
+
+# add sample sizes, numbers of studies
+
+
+text(x = 0.8, y = 3,labels="n = 72", pos=4,cex=1.5)
+text(x = 0.8, y = 2,labels="n = 85", pos=4,cex=1.5)
+text(x = 0.8, y = 1,labels="n = 447", pos=4,cex=1.5)
+
+
+##### Plotting the relationship between inbreeding effect sizes and the interaction of life history stage and mating systems in plants ##############################
+##### The model with the lowerest DIC is m6d (the best fit model) ###################################################################################################
+
+res6d <- cbind(m6d$Sol[, "(Intercept)"],
+              m6d$Sol[, "(Intercept)"] + m6d$Sol[, "Life.stageMiddle"],
+              m6d$Sol[, "(Intercept)"] + m6d$Sol[, "Life.stageLate"],
+              m6d$Sol[, "(Intercept)"] + m6d$Sol[, "Mating.system2Outcrossing"],
+              m6d$Sol[, "(Intercept)"] + m6d$Sol[, "Life.stageMiddle:Mating.system2Outcrossing"],
+              m6d$Sol[, "(Intercept)"] + m6d$Sol[, "Life.stageLate:Mating.system2Outcrossing"])
+
+
+res6d.tmp <- HPDinterval(mcmc(res6d))
+
+hpm <- c(mean(mcmc(res6d)[,1]),
+         mean(mcmc(res6d)[,2]),
+         mean(mcmc(res6d)[,3]),
+         mean(mcmc(res6d)[,4]),
+         mean(mcmc(res6d)[,5]),
+         mean(mcmc(res6d)[,6]))
+
+p.val <- c(pMCMC(mcmc(res6d)[,1]),
+           pMCMC(mcmc(res6d)[,2]),
+           pMCMC(mcmc(res6d)[,3]),
+           pMCMC(mcmc(res6d)[,4]),
+           pMCMC(mcmc(res6d)[,5]),
+           pMCMC(mcmc(res6d)[,6]))
+
+res6d <- data.frame(hpm,res6d.tmp, p.val)
+colnames(res6d) <- c("post.mean", "l-95% CI", "u-95% CI", "pMCMC")
+rownames(res6d) <- c("Early (mix-mating)","Middle (mix-mating)","Late (mix-mating)","Early (outcrossing)","Middle (outcrossing)","Late (outcrossing)")
+res6d
 
 ng <- 6
 par(mfrow = c(1,1))
 par(mar=c(5,4,2,2))
 
-plot(res6[,1],c(ng:1),xlab="Inbreeding effect size", ylab="", bg=c(rep("black",ng)), pch=22,
+plot(res6d[,1],c(ng:1),xlab="Inbreeding effect size", ylab="", bg=c(rep("black",ng)), pch=22,
      cex=1.5, xlim=c(-2,9),ylim=c(0,ng+1),yaxt="n") 
-e.bars.points2(res6[,1], z1 = res6[,3], z2 = res6[,2], x = c(ng:1),cap=0.1,clr=c(rep("black",ng)), lwd=1.5)
+e.bars.points2(res6d[,1], z1 = res6d[,3], z2 = res6d[,2], x = c(ng:1),cap=0.1,clr=c(rep("black",ng)), lwd=1.5)
 abline(v=0,lty=5,col="gray50", lwd=1.5)
 
 # add some labels to the plot, take care to get the correct order
@@ -401,66 +454,22 @@ text(x = 6.1, y = 3,labels="n = 4", pos=4,cex=1)
 text(x = 6.1, y = 2,labels="n = 8", pos=4,cex=1)
 text(x = 6.1, y = 1,labels="n = 16", pos=4,cex=1)
 
-################################### plant and life cycle stage ##############################################
 
-table(stage$Life.stage)
+##### Analysis the relationship between life history stage and inbreeding effect sizes in animals #####
+##### Analysis the interaction term : life history stage * mating system in animals ######
 
-res6 <- cbind(m6.1$Sol[, "(Intercept)"],
-              m6.1$Sol[, "(Intercept)"] + m6.1$Sol[, "Life.stageMiddle"],
-              m6.1$Sol[, "(Intercept)"] + m6.1$Sol[, "Life.stageLate"])
+m7a<-MCMCglmm(Effect.sizes~Ibd_coefficient2,mev = Animalstage$Var,data=Animalstage, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
+summary(m7a)
 
+m7b<-MCMCglmm(Effect.sizes~Ibd_coefficient2+Life.stage,mev = Animalstage$Var,data=Animalstage, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
+summary(m7b)
 
-res6.tmp <- HPDinterval(mcmc(res6))
+##### Plotting the relationship between inbreeding effect sizes and the life history stage in animals ###################################
+##### The model with the lowerest DIC is m7a, adding life history stage did not improve the model #######################################
 
-hpm <- c(mean(mcmc(res6)[,1]),
-         mean(mcmc(res6)[,2]),
-         mean(mcmc(res6)[,3]))
-
-p.val <- c(pMCMC(mcmc(res6)[,1]),
-           pMCMC(mcmc(res6)[,2]),
-           pMCMC(mcmc(res6)[,3]))
-
-res6 <- data.frame(hpm,res6.tmp, p.val)
-colnames(res6) <- c("post.mean", "l-95% CI", "u-95% CI", "pMCMC")
-rownames(res6) <- c("Early","Middle","Late")
-res6
-
-
-ng <- 3
-par(mfrow = c(1,1))
-par(mar=c(5,4,2,2))
-
-plot(res6[,1],c(ng:1),xlab="Inbreeding effect size", ylab="", bg=c(rep("black",ng)), pch=22,
-     cex=2, xlim=c(-0.1,1.2),ylim=c(0,ng+1),yaxt="n") 
-e.bars.points2(res6[,1], z1 = res6[,3], z2 = res6[,2], x = c(ng:1),cap=0.1,clr=c(rep("black",ng)), lwd=1.5)
-abline(v=0,lty=5,col="gray50", lwd=1.5)
-
-# add some labels to the plot, take care to get the correct order
-#adjust x as needed
-
-
-text(x = 0.5, y = 3,labels="Early", pos=4,cex=1.5)
-text(x = 0.5, y = 2,labels="Middle", pos=4,cex=1.5)
-text(x = 0.5, y = 1,labels="Late", pos=4,cex=1.5)
-
-
-# add sample sizes, numbers of studies
-
-
-text(x = 0.8, y = 3,labels="n = 72", pos=4,cex=1.5)
-text(x = 0.8, y = 2,labels="n = 85", pos=4,cex=1.5)
-text(x = 0.8, y = 1,labels="n = 447", pos=4,cex=1.5)
-
-##############################################################################################################
-
-m7.1<-MCMCglmm(Effect.sizes~Ibd_coefficient2+Life.stage,mev = Animalstage$Var,data=Animalstage, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
-summary(m7.1)
-
-################################### Animal and life cycle stage ##############################################
-
-res7 <- cbind(m7.1$Sol[, "(Intercept)"],
-              m7.1$Sol[, "(Intercept)"] + m7.1$Sol[, "Life.stageMiddle"],
-              m7.1$Sol[, "(Intercept)"] + m7.1$Sol[, "Life.stageLate"])
+res7 <- cbind(m7.b$Sol[, "(Intercept)"],
+              m7.b$Sol[, "(Intercept)"] + m7.b$Sol[, "Life.stageMiddle"],
+              m7.b$Sol[, "(Intercept)"] + m7.b$Sol[, "Life.stageLate"])
 
 
 res7.tmp <- HPDinterval(mcmc(res7))
@@ -505,100 +514,3 @@ text(x = 0.8, y = 2,labels="n = 59", pos=4,cex=1.5)
 text(x = 0.8, y = 1,labels="n = 132", pos=4,cex=1.5)
 
 
-###########################################################################################################
-######################## Plant trait type #################################################################
-
-Plant<-subset(EnvExp,EnvExp$Taxonomic.group=="Plant"& EnvExp$Env_design=="Control")
-Plant$Ibd_coefficient2<-Plant$Ibd_coefficient-0.5
-
-is.ordered(Plant$Trait_type)
-Plant$Trait_type<-as.factor(Plant$Trait_type)
-Plant$Trait_type<-relevel(Plant$Trait_type, ref=4)
-
-m5p<-MCMCglmm(Effect.sizes~Trait_type+Ibd_coefficient2,mev = Plant$Var,data=Plant, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
-
-table(Plant$Trait_type)
-summary(m5p)
-
-res5p <- cbind(m5p$Sol[, "(Intercept)"],
-               m5p$Sol[, "(Intercept)"] + m5p$Sol[, "Trait_typeDefence"],
-               m5p$Sol[, "(Intercept)"] + m5p$Sol[, "Trait_typeDevelopment"],
-               m5p$Sol[, "(Intercept)"] + m5p$Sol[, "Trait_typeFecundity"],
-               m5p$Sol[, "(Intercept)"] + m5p$Sol[, "Trait_typeGrowth rate"],
-               m5p$Sol[, "(Intercept)"] + m5p$Sol[, "Trait_typeOther fitness-related"],
-               m5p$Sol[, "(Intercept)"] + m5p$Sol[, "Trait_typePhysiology"],
-               m5p$Sol[, "(Intercept)"] + m5p$Sol[, "Trait_typeSize"],
-               m5p$Sol[, "(Intercept)"] + m5p$Sol[, "Trait_typeSurvival"],
-               m5p$Sol[, "(Intercept)"] + m5p$Sol[, "Trait_typeViability"])
-
-
-res5p.tmp <- HPDinterval(mcmc(res5p))
-
-hpm <- c(mean(mcmc(res5p)[,1]),
-         mean(mcmc(res5p)[,2]),
-         mean(mcmc(res5p)[,3]),
-         mean(mcmc(res5p)[,4]),
-         mean(mcmc(res5p)[,5]),
-         mean(mcmc(res5p)[,6]),
-         mean(mcmc(res5p)[,7]),
-         mean(mcmc(res5p)[,8]),
-         mean(mcmc(res5p)[,9]),
-         mean(mcmc(res5p)[,10]))
-
-p.val <- c(pMCMC(mcmc(res5p)[,1]),
-           pMCMC(mcmc(res5p)[,2]),
-           pMCMC(mcmc(res5p)[,3]),
-           pMCMC(mcmc(res5p)[,4]),
-           pMCMC(mcmc(res5p)[,5]),
-           pMCMC(mcmc(res5p)[,6]),
-           pMCMC(mcmc(res5p)[,7]),
-           pMCMC(mcmc(res5p)[,8]),
-           pMCMC(mcmc(res5p)[,9]),
-           pMCMC(mcmc(res5p)[,10]))
-
-res5p <- data.frame(hpm,res5p.tmp, p.val)
-colnames(res5p) <- c("post.mean", "l-95% CI", "u-95% CI", "pMCMC")
-rownames(res5p) <- c("Fitness","Defence","Development","Fecundity","Growth rate","Other","Physiology", "Size", "Survival","Viability")
-res5p
-
-
-ng <- 10
-par(mfrow = c(1,1))
-par(mar=c(5,4,2,2))
-
-plot(res5p[,1],c(ng:1),xlab="Inbreeding effect size", ylab="", bg=c(rep("black",ng)), pch=22,
-     cex=1.25, xlim=c(-1,4),ylim=c(0,ng+2),yaxt="n") 
-axis(side=3,labels=F,at=c(-1.5,1.5), col=0)
-axis(side=4,labels=F,at=c(-1.5,1.5), col=0) 
-e.bars.points2(res5p[,1], z1 = res5p[,3], z2 = res5p[,2], x = c(ng:1),cap=0.1,clr=c(rep("black",ng)), lwd=1.5)
-abline(v=0,lty=5,col="gray50", lwd=1.5)
-
-# add some labels to the plot, take care to get the correct order
-#adjust x as needed
-
-
-text(x = 1.2, y = 10,labels="Fitness", pos=4)
-text(x = 1.2, y = 9,labels="Defence", pos=4)
-text(x = 1.2, y = 8,labels="Development", pos=4)
-text(x = 1.2, y = 7,labels="Fecundity", pos=4)
-text(x = 1.2, y = 6,labels="Growth rate", pos=4)
-text(x = 1.2, y = 5,labels="Other", pos=4)
-text(x = 1.2, y = 4,labels="Physiology", pos=4)
-text(x = 1.2, y = 3,labels="Size", pos=4)
-text(x = 1.2, y = 2,labels="Survival", pos=4)
-text(x = 1.2, y = 1,labels="Viability", pos=4)
-
-
-# add sample sizes, numbers of studies
-
-
-text(x = 3, y = 10,labels="n = 6", pos=4)
-text(x = 3, y = 9,labels="n = 2", pos=4)
-text(x = 3, y = 8,labels="n = 217", pos=4)
-text(x = 3, y = 7,labels="n = 11", pos=4)
-text(x = 3, y = 6,labels="n = 10", pos=4)
-text(x = 3, y = 5,labels="n =30", pos=4)
-text(x = 3, y = 4,labels="n = 25", pos=4)
-text(x = 3, y = 3,labels="n = 194", pos=4)
-text(x = 3, y = 2,labels="n = 79", pos=4)
-text(x = 3, y = 1,labels="n = 62", pos=4)
