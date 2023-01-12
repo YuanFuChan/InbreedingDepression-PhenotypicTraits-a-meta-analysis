@@ -305,38 +305,41 @@ Animalstage<-subset(SpcChr,SpcChr$Life.stage!="Unknown" & SpcChr$Taxonomic.group
 
 
 ## Centralise inbreeding coefficient arount 0.5 ###
+Plantstage$Ibd_coefficient2 <-Plantstage$Ibd_coefficient-0.5
+Animalstage$Ibd_coefficient2 <-Plantstage$Ibd_coefficient-0.5
+
+## Multiply inbreeding effect sizes by -1
+## Therefore, the magnitude of inbreeding depression will positively scale with inbreeding effect sizes
 Plantstage$Effect.sizes<-Plantstage$Effect.sizes*-1
+Animalstage$Effect.sizes<-Animalstage$Effect.sizes*-1
+
 Plantstage$Life.stage <-relevel(Plantstage$Life.stage, ref=4)
 Plantstage$Mating.system2 <-relevel(Plantstage$Mating.system2, ref=2)
-
-Animalstage$Effect.sizes<-Animalstage$Effect.sizes*-1
 Animalstage$Life.stage<-relevel(Animalstage$Life.stage, ref = 2)
 
 table(Plantstage$Life.stage)
 table(Plantstage$Life.stage:Plantstage$Mating.system2)
 table(Animalstage$Life.stage)
 
-m6<-MCMCglmm(Effect.sizes~Ibd_coefficient2,mev = Plantstage$Var,data=Plantstage, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
-summary(m6)
 
-m6.1<-MCMCglmm(Effect.sizes~Ibd_coefficient2+Life.stage,mev = Plantstage$Var,data=Plantstage, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
-summary(m6.1)
+##### Analysis the relationship between life history stage and inbreeding effect sizes #####
+##### Analysis the interaction term : life history stage * mating system ######
 
-m6.2<-MCMCglmm(Effect.sizes~Ibd_coefficient2+Life.stage+Mating.system1,mev = Plantstage$Var,data=Plantstage, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
-summary(m6.2)
+m6a<-MCMCglmm(Effect.sizes~Ibd_coefficient2,mev = Plantstage$Var,data=Plantstage, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
+summary(m6a)
 
-m6.3<-MCMCglmm(Effect.sizes~Ibd_coefficient2+Life.stage+Mating.system2,mev = Plantstage$Var,data=Plantstage, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
-summary(m6.3)
+m6b<-MCMCglmm(Effect.sizes~Ibd_coefficient2+Life.stage,mev = Plantstage$Var,data=Plantstage, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
+summary(m6b)
 
-m6.4<-MCMCglmm(Effect.sizes~Ibd_coefficient2+Life.stage*Mating.system2,mev = Plantstage$Var,data=Plantstage, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
-summary(m6.4)
+m6c<-MCMCglmm(Effect.sizes~Ibd_coefficient2+Life.stage+Mating.system2,mev = Plantstage$Var,data=Plantstage, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
+summary(m6c)
 
-m6.5<-MCMCglmm(Effect.sizes~Ibd_coefficient2+Mating.system2,mev = Plantstage$Var,data=Plantstage, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
-summary(m6.5)
+m6d<-MCMCglmm(Effect.sizes~Ibd_coefficient2+Life.stage*Mating.system2,mev = Plantstage$Var,data=Plantstage, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
+summary(m6d)
 
+m6e<-MCMCglmm(Effect.sizes~Ibd_coefficient2+Mating.system2,mev = Plantstage$Var,data=Plantstage, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
+summary(m6e)
 
-m7.1<-MCMCglmm(Effect.sizes~Ibd_coefficient2+Life.stage,mev = Animalstage$Var,data=Animalstage, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
-summary(m7.1)
 
 
 res6 <- cbind(m6.4$Sol[, "(Intercept)"],
@@ -447,6 +450,11 @@ text(x = 0.5, y = 1,labels="Late", pos=4,cex=1.5)
 text(x = 0.8, y = 3,labels="n = 72", pos=4,cex=1.5)
 text(x = 0.8, y = 2,labels="n = 85", pos=4,cex=1.5)
 text(x = 0.8, y = 1,labels="n = 447", pos=4,cex=1.5)
+
+##############################################################################################################
+
+m7.1<-MCMCglmm(Effect.sizes~Ibd_coefficient2+Life.stage,mev = Animalstage$Var,data=Animalstage, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
+summary(m7.1)
 
 ################################### Animal and life cycle stage ##############################################
 
