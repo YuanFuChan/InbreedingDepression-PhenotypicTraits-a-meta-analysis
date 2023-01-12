@@ -53,25 +53,34 @@ summary(m2)
 ######################################## Analysis 3: Meta-analysis of phenotypic traits and inbreeding effect siezes ###################################################
 ########################################################################################################################################################################
 
-m3.1<-MCMCglmm(Effect.sizes~Trait_type*Ibd_coefficient2,mev = SpcChr$Var,data=SpcChr, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
+## Article ID and mev were fitted as random effects for all models progressed from the minimal model.
+## The goodness of fit of the model is determined when the values of DIC no longer increase.
+
+m3a<-MCMCglmm(Effect.sizes~Ibd_coefficient2,mev = SpcChr$Var,data=SpcChr, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
 summary(m3.1)
 
-m3.2<-MCMCglmm(Effect.sizes~Trait_type+Ibd_coefficient2,mev = SpcChr$Var,data=SpcChr, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
+m3b<-MCMCglmm(Effect.sizes~Trait_type+Ibd_coefficient2,mev = SpcChr$Var,data=SpcChr, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
 summary(m3.2)
+
+m3c<-MCMCglmm(Effect.sizes~Trait_type * Ibd_coefficient2,mev = SpcChr$Var,data=SpcChr, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
+summary(m3.3)
 
 table(SpcChr$Trait_type)
 
-res3 <- cbind(m3.2$Sol[, "(Intercept)"],
-              m3.2$Sol[, "(Intercept)"] + m3.2$Sol[, "Trait_typeDefence"],
-              m3.2$Sol[, "(Intercept)"] + m3.2$Sol[, "Trait_typeDevelopment"],
-              m3.2$Sol[, "(Intercept)"] + m3.2$Sol[, "Trait_typeFecundity"],
-              m3.2$Sol[, "(Intercept)"] + m3.2$Sol[, "Trait_typeFitness"],
-              m3.2$Sol[, "(Intercept)"] + m3.2$Sol[, "Trait_typeGrowth rate"],
-              m3.2$Sol[, "(Intercept)"] + m3.2$Sol[, "Trait_typeOther fitness-related"],
-              m3.2$Sol[, "(Intercept)"] + m3.2$Sol[, "Trait_typePhysiology"],
-              m3.2$Sol[, "(Intercept)"] + m3.2$Sol[, "Trait_typeSize"],
-              m3.2$Sol[, "(Intercept)"] + m3.2$Sol[, "Trait_typeSurvival"],
-              m3.2$Sol[, "(Intercept)"] + m3.2$Sol[, "Trait_typeViability"])
+##### Plotting the relationship between inbreeding effect sizes and trait types ###################################
+##### The model with the lowerest DIC is m3b (the best fit model) #################################################
+
+res3 <- cbind(m3b$Sol[, "(Intercept)"],
+              m3b$Sol[, "(Intercept)"] + m3b$Sol[, "Trait_typeDefence"],
+              m3b$Sol[, "(Intercept)"] + m3b$Sol[, "Trait_typeDevelopment"],
+              m3b$Sol[, "(Intercept)"] + m3b$Sol[, "Trait_typeFecundity"],
+              m3b$Sol[, "(Intercept)"] + m3b$Sol[, "Trait_typeFitness"],
+              m3b$Sol[, "(Intercept)"] + m3b$Sol[, "Trait_typeGrowth rate"],
+              m3b$Sol[, "(Intercept)"] + m3b$Sol[, "Trait_typeOther fitness-related"],
+              m3b$Sol[, "(Intercept)"] + m3b$Sol[, "Trait_typePhysiology"],
+              m3b$Sol[, "(Intercept)"] + m3b$Sol[, "Trait_typeSize"],
+              m3b$Sol[, "(Intercept)"] + m3b$Sol[, "Trait_typeSurvival"],
+              m3b$Sol[, "(Intercept)"] + m3b$Sol[, "Trait_typeViability"])
 
 
 res3.tmp <- HPDinterval(mcmc(res3))
@@ -105,7 +114,6 @@ colnames(res3) <- c("post.mean", "l-95% CI", "u-95% CI", "pMCMC")
 rownames(res3) <- c("Behaviour","Defence","Development","Fecundity","Fitness","Growth rate","Other","Physiology", "Size", "Survival","Viability")
 res3
 
-
 ng <- 11
 par(mfrow = c(1,1))
 par(mar=c(5,4,2,2))
@@ -114,7 +122,6 @@ plot(res3[,1],c(ng:1),xlab="Inbreeding effect size", ylab="", bg=c(rep("black",n
      cex=1, xlim=c(-0.7,2.3),ylim=c(0,ng+2),yaxt="n") 
 e.bars.points2(res3[,1], z1 = res3[,3], z2 = res3[,2], x = c(ng:1),cap=0.1,clr=c(rep("black",ng)), lwd=1.5)
 abline(v=0,lty=5,col="gray50", lwd=1.5)
-
 
 # add some labels to the plot, take care to get the correct order
 #adjust x as needed
@@ -146,18 +153,26 @@ text(x = 1.5, y = 3,labels="n = 242", pos=4,cex=1)
 text(x = 1.5, y = 2,labels="n = 145", pos=4,cex=1)
 text(x = 1.5, y = 1,labels="n = 71", pos=4,cex=1)
 
-##################################### Model 2 Fitness class ########################################################################################
+########################################################################################################################################################################
+######################################## Analysis 4: Meta-analysis of fitness class and inbreeding effect siezes #######################################################
+########################################################################################################################################################################
 
-m4.1<-MCMCglmm(Effect.sizes~Fitness_class+Ibd_coefficient2,mev = SpcChr$Var,data=SpcChr, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
+m4a<-MCMCglmm(Effect.sizes~Ibd_coefficient2,mev = SpcChr$Var,data=SpcChr, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
 summary(m4.1)
 
-m4.2<-MCMCglmm(Effect.sizes~Fitness_class*Ibd_coefficient2,mev = SpcChr$Var,data=SpcChr, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
+m4b<-MCMCglmm(Effect.sizes~Fitness_class + Ibd_coefficient2,mev = SpcChr$Var,data=SpcChr, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
 summary(m4.2)
+
+m4c<-MCMCglmm(Effect.sizes~Fitness_class * Ibd_coefficient2,mev = SpcChr$Var,data=SpcChr, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
+summary(m4.3)
 
 table(SpcChr$Fitness_class)
 
-res4 <- cbind(m4.1$Sol[, "(Intercept)"],
-              m4.1$Sol[, "(Intercept)"] + m4.1$Sol[, "Fitness_classN"])
+### Plotting the relationship between inbreeding effect sizes and fitness class ###################################
+##### The model with the lowerest DIC is m4b (the best fit model) #################################################
+
+res4 <- cbind(m4b$Sol[, "(Intercept)"],
+              m4b$Sol[, "(Intercept)"] + m4b$Sol[, "Fitness_classN"])
 
 
 res4.tmp <- HPDinterval(mcmc(res4))
@@ -197,34 +212,44 @@ text(x = 0.5, y = 1,labels="N", pos=4,cex=1.5)
 text(x = 0.8, y = 2,labels="n = 535", pos=4,cex=1.5)
 text(x = 0.8, y = 1,labels="n = 410", pos=4,cex=1.5)
 
-############################ Life history ################################################################
+########################################################################################################################################################################
+###################################### Analysis 5: Meta-analysis of life history stage and inbreeding effect siezes ####################################################
+########################################################################################################################################################################
 
+## Subset the dataset to exclude the traits without information on life history stage ##
 stage<-subset(SpcChr,SpcChr$Life.stage!="Unknown"& SpcChr$Life.stage!="All")
 
+## Centralise inbreeding coefficient arount 0.5
 stage$Ibd_coefficient2<-stage$Ibd_coefficient-0.5
+
+## Multiply inbreeding effect sizes by -1
+## Therefore, the magnitude of inbreeding depression will positively scale with inbreeding effect sizes
 stage$Effect.sizes<-stage$Effect.sizes*-1
 
 stage$Life.stage <-relevel(stage$Life.stage, ref=4)
 
-m5<-MCMCglmm(Effect.sizes~Ibd_coefficient2,mev = stage$Var,data=stage, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
-summary(m5)
+m5a<-MCMCglmm(Effect.sizes~Ibd_coefficient2,mev = stage$Var,data=stage, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
+summary(m5a)
 
-m5.1<-MCMCglmm(Effect.sizes~Life.stage+Ibd_coefficient2,mev = stage$Var,data=stage, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
-summary(m5.1)
+m5b<-MCMCglmm(Effect.sizes~Life.stage+Ibd_coefficient2,mev = stage$Var,data=stage, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
+summary(m5b)
 
-
-m5.2<-MCMCglmm(Effect.sizes~Life.stage*Ibd_coefficient2,mev = stage$Var,data=stage, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
-summary(m5.2)
+m5c<-MCMCglmm(Effect.sizes~Life.stage*Ibd_coefficient2,mev = stage$Var,data=stage, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
+summary(m5c)
 
 
 m5.3<-MCMCglmm(Effect.sizes~Life.stage*Mating.system2+Ibd_coefficient2,mev = stage$Var,data=stage, verbose=F,random=~Article_ID, prior=prior,nitt = 110000,burnin=10000,thin=100)
 summary(m5.3)
 
+
+### Plotting the relationship between inbreeding effect sizes and life history stage ##############################
+##### The model with the lowerest DIC is m5b (the best fit model) #################################################
+
 table(stage$Life.stage)
 
-res5 <- cbind(m5.1$Sol[, "(Intercept)"],
-              m5.1$Sol[, "(Intercept)"] + m5.1$Sol[, "Life.stageMiddle"],
-              m5.1$Sol[, "(Intercept)"] + m5.1$Sol[, "Life.stageLate"])
+res5 <- cbind(m5.b$Sol[, "(Intercept)"],
+              m5.b$Sol[, "(Intercept)"] + m5.b$Sol[, "Life.stageMiddle"],
+              m5.b$Sol[, "(Intercept)"] + m5.b$Sol[, "Life.stageLate"])
 
 
 res5.tmp <- HPDinterval(mcmc(res5))
@@ -268,12 +293,18 @@ text(x = 0.8, y = 3,labels="n = 152", pos=4,cex=1)
 text(x = 0.8, y = 2,labels="n = 144", pos=4,cex=1)
 text(x = 0.8, y = 1,labels="n = 579", pos=4,cex=1)
 
-##########################################################################################################
-####################### Plant Life History Trait #########################################################
 
+########################################################################################################################################################################
+###################################### Analysis 6: Meta-analysis of life history stage and inbreeding effect siezes ####################################################
+###################################### The analysis was done in animals and plants separately ##########################################################################
+########################################################################################################################################################################
+
+### Subset the dataset into animals and plants separately ###
 Plantstage<-subset(SpcChr,SpcChr$Life.stage!="Unknown" & SpcChr$Taxonomic.group=="Plant" &SpcChr$Life.stage!="All")
 Animalstage<-subset(SpcChr,SpcChr$Life.stage!="Unknown" & SpcChr$Taxonomic.group!="Plant" &SpcChr$Life.stage!="All")
 
+
+## Centralise inbreeding coefficient arount 0.5 ###
 Plantstage$Effect.sizes<-Plantstage$Effect.sizes*-1
 Plantstage$Life.stage <-relevel(Plantstage$Life.stage, ref=4)
 Plantstage$Mating.system2 <-relevel(Plantstage$Mating.system2, ref=2)
